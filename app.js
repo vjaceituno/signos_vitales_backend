@@ -4,11 +4,13 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
+const cors = require("cors");
+
 var indexRouter = require('./routes/index');
 // var usersRouter = require('./routes/usuarios');
 const mongoose = require("mongoose");
 const jwt = require('express-jwt');
-const cors = require("cors");
+
 const Tokens = require("./models/tokens");
 const moment = require('moment-timezone');
 
