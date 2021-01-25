@@ -7,7 +7,7 @@ var logger = require('morgan');
 const cors = require("cors");
 
 var indexRouter = require('./routes/index');
-// var usersRouter = require('./routes/usuarios');
+var usersRouter = require('./routes/users');
 const mongoose = require("mongoose");
 const jwt = require('express-jwt');
 
@@ -80,7 +80,7 @@ app.use(jwt(jwtConfig).unless({
   path: [{ url: "/auth/login" }, { url: "/auth/logout" }, { url: "/auth/create" }, { url: "/auth/vericarsms" },{ url: "/auth/valida" }, { url: "/auth/refreshtoken" }, { url: "/public/upload/" }]
 }));
 
-// app.use('/users', usersRouter);
+app.use('/users', usersRouter);
 app.use('/auth', AuthRouter);
 app.use('/paciente', PacienteRouter);
 app.use('/signos', SignosRouter);
