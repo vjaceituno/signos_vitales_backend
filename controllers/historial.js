@@ -1,3 +1,5 @@
+
+
 const Historial = require("../models/historial.js");
 const mongoose = require('mongoose');
 
@@ -50,7 +52,6 @@ const getHistorial = (req, res) => {
 //actualizar paciente
 const updateHistorial = (req, res) => {
     try {
-
         const props = req.body;
         // console.log('pac mod', props);        
         Historial.findOneAndUpdate({_id: mongoose.Types.ObjectId(props._id) }, { $set: props }, { new: true })

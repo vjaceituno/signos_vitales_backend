@@ -50,14 +50,12 @@ const getPacientes = (req, res) => {
 //actualizar paciente
 const updatePaciente = (req, res) => {
     try {
-        const props = req.body;
-        console.log('pac mod', props);        
+        const props = req.body;     
         props.fullName = `${props.firstName} ${props.lastName}`;
         Paciente.findOneAndUpdate({_id: mongoose.Types.ObjectId(props._id) }, { $set: props }, { new: true })
         .exec()
         .then((paciente) => {
             res.json(paciente);
-            console.log('pac mod', paciente);
         })
         .catch((err) => {
             res.status(403).json(err.message);
@@ -69,7 +67,6 @@ const updatePaciente = (req, res) => {
 
 const getPacienteEmpresa = (req, res) => {
     try {
-        console.log('req', req.query);
         const props = req.query;
 
         if (props.empresa) {
@@ -80,7 +77,6 @@ const getPacienteEmpresa = (req, res) => {
         .exec()
         .then((paciente) => {        
             res.json(paciente);
-            console.log('pac', paciente);
         })
         .catch((err) => {
             res.status(403).json(err.message);
@@ -100,11 +96,9 @@ const getPacientesPorEmpresa = (req, res) => {
         .exec() 
         .then((paciente) => {        
             res.json(paciente);
-            console.log('pac', paciente);
         })
         .catch((err) => {
             res.status(403).json(err.message);
-            console.log('error', res);
         });
 
         

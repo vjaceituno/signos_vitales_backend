@@ -305,6 +305,30 @@ const updateUsuario = (req, res) => {
   }
 }
 
+const getDoctores = (req, res) => {
+  try {
+    const props = req.query;
+    if (props._id) {
+        props._id = mongoose.Types.ObjectId(props._id);
+    }
+    if (props.fullName) {
+      props.fullName = RegExp(props.fullName, "i");
+    }
+    User.find(props, '_id fullName username roles enabled')
+    .where('roles').equals('medico')
+    .exec()
+    .then((usuario) => {            
+      res.json(usuario);        
+    })  
+    .catch((err) => {
+        res.status(403).json(err.message);
+    });
+
+  } catch (err) {
+      res.status(500).json({ err: err.message });
+  }
+}
+
 module.exports = {
   login,
   createUser,
@@ -314,5 +338,6 @@ module.exports = {
   verificarSms,
   updatePassword,
   getUsuarioByIdName,
-  updateUsuario
+  updateUsuario,
+  getDoctores
 };

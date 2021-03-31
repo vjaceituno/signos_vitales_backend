@@ -2,6 +2,7 @@ const Router = require('express').Router();
 const AuthController = require('../controllers/auth');
 
 Router.get("/", AuthController.getUsuarioByIdName);
+Router.get("/doctor", AuthController.getDoctores);
 Router.post("/login", AuthController.login);
 Router.post("/create", AuthController.createUser);
 // Router.post ("/valida", AuthController.dfa);

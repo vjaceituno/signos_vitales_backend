@@ -51,7 +51,53 @@ const getSignos = (req, res) => {
 
 }
 
+const getPacientesDoctor = (req, res) => {
+    try {
+        console.log('req', req.query);
+        const props = req.query;
+
+        if (props.doctor) {
+            props.doctor = RegExp(props.doctor, "i");
+        }
+
+        // Filtrar por dos condiciones concatenadas con AND separadas por coma
+        // provenientes de una misma tabla
+        Signos.find({ $and: [{ estadoConsulta: 'pendiente' }, { doctor: props.doctor }]  }).populate('paciente')
+        .exec()
+        .then((paciente) => {        
+            res.json(paciente);
+            console.log('pac', paciente);
+        })
+        .catch((err) => {
+            res.status(403).json(err.message);
+        });
+
+        
+    } catch (err) {
+        res.status(500).json({ err: err.message });
+    }
+
+}
+
+const updateSignos = (req, res) => {
+    try {
+        const props = req.body;             
+        Signos.findOneAndUpdate({_id: mongoose.Types.ObjectId(props._id) }, { $set: props }, { new: true })
+        .exec()
+        .then((paciente) => {
+            res.json(paciente);
+        })
+        .catch((err) => {
+            res.status(403).json(err.message);
+        });
+    } catch (err) {
+        res.status(500).json({ err: err.message });
+    }
+}
+
 module.exports = {
     createSignos,
-    getSignos
+    getSignos,
+    getPacientesDoctor,
+    updateSignos
 }
