@@ -24,6 +24,7 @@ const SignosRouter = require("./routes/signos.routes");
 const ConsultaRouter = require("./routes/consulta.routes");
 const HistorialRouter = require("./routes/historial.routes");
 const ServiciosRouter = require("./routes/servicios.routes");
+const ImagenesRouter = require("./routes/imagenes.routes");
 
 var app = express();
 
@@ -73,6 +74,8 @@ const jwtConfig = {
   }
 };
 
+app.use('/public/upload', express.static(path.resolve('public/upload')));
+
 app.use('/', indexRouter);
 
 //Excepciones de token JWT
@@ -87,6 +90,7 @@ app.use('/signos', SignosRouter);
 app.use('/consulta', ConsultaRouter);
 app.use('/historial', HistorialRouter);
 app.use('/servicios', ServiciosRouter);
+app.use('/imagenes', ImagenesRouter);
 
 
 app.use(function(req, res, next) {

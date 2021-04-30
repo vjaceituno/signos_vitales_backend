@@ -21,6 +21,9 @@ const pacienteSchema = new mongoose.Schema({
     enabled: { type: Boolean, default: true },
     usuario: { type: mongoose.Types.ObjectId, ref: 'Usuario' },
     
+    imagenes: [{ type: String }],
+    usuarioImagenes: { type: mongoose.Types.ObjectId, ref: 'Usuario' },
+
 }, { timestamps: true });
 
 const Paciente = mongoose.model("Paciente", pacienteSchema);
