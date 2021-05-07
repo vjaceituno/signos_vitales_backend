@@ -307,15 +307,9 @@ const updateUsuario = (req, res) => {
 
 const getDoctores = (req, res) => {
   try {
-    const props = req.query;
-    if (props._id) {
-        props._id = mongoose.Types.ObjectId(props._id);
-    }
-    if (props.fullName) {
-      props.fullName = RegExp(props.fullName, "i");
-    }
-    User.find(props, '_id fullName username roles enabled')
-    .where('roles').equals('medico')
+    
+    User.find( {  $and: [ { enabled: true }, { $or: [ { roles:'medico' }, { roles:'administrador' } ] }  ]  }, '_id fullName username roles enabled')
+    // .where('roles').equals('medico')   
     .exec()
     .then((usuario) => {            
       res.json(usuario);        
