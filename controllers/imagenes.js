@@ -10,7 +10,7 @@ const fsPromises = fs.promises;
 const { randomNumber } = require('../helpers/libs');
 
 let nombresImagenes = [];
-let imagenesTotales = [];
+// let imagenesTotales = [];
 
 const imageUpload = (req, res, next) => {
     try{
@@ -54,7 +54,7 @@ const updateImagenesPaciente = (req, res) => {
         }
 
         const props = req.body;     
-        imagenesTotales = [];
+        let imagenesTotales = [];
 
         for (let i=0; i<nombresImagenes.length; i++){ 
             //nuevo nombre de la imagen
@@ -86,26 +86,28 @@ const updateImagenesPaciente = (req, res) => {
         if (props._id) {
             props._id = mongoose.Types.ObjectId(props._id);
         }
-        Paciente.find(props)
+        Paciente.findOne(props)
         .exec()
         .then((paciente) => {  
-            if (paciente.length != 0){
-                this.arrImagenes = paciente[0].imagenes;
-                console.log('arrIma', this.arrImagenes);
-                console.log('imaTot', imagenesTotales);
-                // Actualizar en la base de datos   
-                props.imagenes = imagenesTotales;             
-                // props.imagenes = this.arrImagenes.concat(imagenesTotales);     
-                Paciente.findOneAndUpdate({_id: mongoose.Types.ObjectId(props._id) }, { $set: props }, { new: true })
-                .exec()
-                .then((pacienteModificado) => {
-                    console.log('pacientemod', pacienteModificado)
-                    res.json(pacienteModificado);
-                })
-                .catch((err) => {
-                    res.status(403).json(err.message);
-                });
-            }
+            if (paciente != null){
+                if (paciente.length != 0){
+                    this.arrImagenes = paciente.imagenes;
+                    console.log('arrIma', this.arrImagenes);
+                    console.log('imaTot', imagenesTotales);
+                    // Actualizar en la base de datos   
+                    // props.imagenes = imagenesTotales;  
+                    // imagenesTotales = ["0dz6hmq.jpg", "014wzje.jpg", "0bfvcm6.png", "03r7aqz.jpg", "0rjxp26.png", "0et34rg.png", "0berile.jpg", "0f3gqln.png"];           
+                    props.imagenes = this.arrImagenes.concat(imagenesTotales);     
+                    Paciente.findOneAndUpdate({_id: mongoose.Types.ObjectId(props._id) }, { $set: props }, { new: true })
+                    .exec()
+                    .then((pacienteModificado) => {                        
+                        res.json(pacienteModificado);
+                    })
+                    .catch((err) => {
+                        res.status(403).json(err.message);
+                    });
+                }
+            }            
             
         })
         .catch((err) => {
@@ -117,7 +119,56 @@ const updateImagenesPaciente = (req, res) => {
     }
 }
 
+const deleteImagen = (req, res) => {
+    try {
+        const props = req.body;
+        // traer las imagenes que ya tiene el paciente
+        let arrImagenes = [];
+        Paciente.findOne({_id: mongoose.Types.ObjectId(props.params.paciente) })
+        .exec() 
+        .then((paciente) => {  
+            if (paciente != null){ 
+                if (paciente.length != 0){
+                    this.arrImagenes = paciente.imagenes;            
+                    let imagen = this.arrImagenes[props.params.idxFoto];
+
+                    // Actualizar en la base de datos   
+                    this.arrImagenes.splice(props.params.idxFoto, 1);       
+                    props.params.imagenes = this.arrImagenes;  
+ 
+                    Paciente.findOneAndUpdate({_id: mongoose.Types.ObjectId(props.params.paciente) }, { $set: { imagenes: props.params.imagenes } }, { new: true })
+                    .exec()
+                    .then((pacienteModificado) => {
+                        // eliminar la imagen de la carpeta del server
+                        fs.unlink(path.resolve("./public/upload/" + imagen),  err => {
+                            if (err) {
+                                return console.log(err);
+                            }
+                            console.log('delete complete');
+                        });
+                       
+                        res.json(pacienteModificado);
+                    })
+                    .catch((err) => {
+                        res.status(403).json(err.message);
+                    });
+                }
+            }
+            
+            
+        })
+        .catch((err) => {
+            res.status(403).json(err.message);
+        });
+                     
+    } catch (err) {
+        res.status(500).json({ err: err.message });
+    }
+}
+
+
 module.exports = {
     imageUpload,
-    updateImagenesPaciente
+    updateImagenesPaciente,
+    deleteImagen
 }
