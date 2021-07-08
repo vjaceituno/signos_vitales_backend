@@ -7,8 +7,9 @@ const path = require('path');
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
+Router.get("/", ImagenesController.getImagenes);
 Router.post("/upload", upload.array('file', 10), ImagenesController.imageUpload);
-Router.put("/imagen", ImagenesController.updateImagenesPaciente);
-Router.put("/bimagen", ImagenesController.deleteImagen);
+Router.post("/imagen", ImagenesController.updateImagenesPaciente);
+Router.delete("/bimagen", ImagenesController.deleteImagen);
 
 module.exports = Router;

@@ -1,6 +1,11 @@
 const passport = require("../utils/passport");
 const moment = require("moment-timezone");
 const User = require("../models/usuarios");
+
+const passwordResetToken = require("../models/passwordResetToken")
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
+
 const mongoose = require("mongoose");
 const randtoken = require("rand-token");
 const path = require("path");
@@ -323,6 +328,154 @@ const getDoctores = (req, res) => {
   }
 }
 
+const ResetPassword = async (req, res) => {
+  try {
+    console.log('res', req.body.email);
+    if (!req.body.email) {
+      return res
+      .status(500)
+      .json({ message: 'Se requiere correo electrónico' });
+    }
+
+    const user = await User.findOne({
+      username: req.body.email
+    });
+    if (!user) {
+      return res
+      .status(409)
+      .json({ message: 'El correo electrónico no existe' });
+    }
+
+    var resettoken = new passwordResetToken({ _userId: user._id, resettoken: crypto.randomBytes(16).toString('hex') });
+    resettoken.save(function (err) {
+      if (err) { 
+        console.log('err', err);
+        return res.status(500).send({ msg: err.message }); 
+      }
+      console.log('user ', user);
+      passwordResetToken.find({ _userId: user._id, resettoken: { $ne: resettoken.resettoken } }).remove().exec();
+      res.status(200).json({ message: 'Contraseña restablecida correctamente.' });
+      var transporter = nodemailer.createTransport({
+        // service: 'smtp.live.com',
+        // service: 'Hotmail',
+        service: 'Gmail',
+        port: 465,
+        secure: true,
+        // port: 587,
+        // requiresAuth: true,
+        // domains: ["hotmail.com", "outlook.com"],
+        // tls: {ciphers:'SSLv3'},
+        // secure: true, // true for 465, false for other ports
+        // auth: {
+        //   user: 'vane.aceituno@hotmail.com',
+        //   pass: 'Dell2014'
+        // }
+        auth: {
+          user: 'vjaceituno@gmail.com',
+          pass: 'domanar%42'
+        }
+      });
+      var mailOptions = {
+        to: user.username,
+        from: 'vjaceituno@gmail.com',
+        subject: 'Signos Vitales - Restablezca su Contraseña',
+        // html: ` 
+        // <div> 
+        // <img src="../public/upload/03skodu.png" style="height: 85px; width: 130px;" alt=""/>
+        // <h3><i class="fa fa-lock fa-4x"></i></h3>
+        // <i class="fas fa-vials"></i>
+        // <p>Hola amigo</p> 
+        // <p>Esto es una prueba del vídeo</p> 
+        // <p>¿Cómo enviar correos eletrónicos con Nodemailer en NodeJS </p> 
+        // </div> 
+        // `
+        text: 'Usted ha solicitado restablecimiento de la contraseña de su cuenta.\n\n' +
+        'Haga clic en el siguiente enlace o péguelo en su navegador para completar el proceso:\n\n' +
+        'https://signosvitaleshn.com/res-reset/' + resettoken.resettoken + '\n\n' +
+        'Este enlace tiene una duración de 24 horas.\n' +
+        'Si no solicitó esta acción, ignore este correo electrónico y su contraseña permanecerá sin cambios.\n'       
+      }
+      transporter.sendMail(mailOptions, (err, info) => {
+      })
+    })
+  } catch (err) {
+    console.log('error us', err);
+    res.status(500).json({ err: err.message });
+  }
+  
+}
+
+const ValidPasswordToken = async (req, res) => {
+  if (!req.body.resettoken) {
+    return res
+    .status(500)
+    .json({ message: 'Token is required' });
+  }
+  const user = await passwordResetToken.findOne({
+    resettoken: req.body.resettoken
+  });
+  if (!user) {
+    return res
+    .status(409)
+    .json({ message: 'Invalid URL' });
+  }
+  User.findOne({ _id: user._userId }).then(() => {
+    res.status(200).json({ message: 'Token verified successfully.' });
+  }).catch((err) => {
+    console.log('err',err.message);
+    return res.status(500).send({ msg: err.message });
+  });
+}
+
+const NewPassword = async (req, res) => {
+  const props = req.body;
+
+  passwordResetToken.findOne({ resettoken: props.resettoken }, function (err, userToken, next) {
+    if (!userToken) {
+      return res
+        .status(409)
+        .json({ message: 'Token ha expirado' });
+    }
+
+    User.findOne({ _id: userToken._userId })
+      .select("+password +hash +salt")
+      .exec()
+      .then(user => {
+        console.log('user', user);
+        const credentials = user.setPassword(props.newPassword);      
+        props.salt = credentials.salt;
+        props.hash = credentials.hash;       
+        
+        bcrypt.genSalt(10, (err, salt) => {
+          if (err) { return res; }
+          bcrypt.hash(props.newPassword, salt, undefined, (err, hash) => {
+            if (err) { return res; }   
+            
+              props.password = hash;  
+  
+              User.findOneAndUpdate({_id: mongoose.Types.ObjectId(userToken._userId) }, { $set: props }, { new: false })
+              .exec()
+              .then((usuario) => {
+                userToken.remove();
+                      return res
+                        .status(201)
+                        .json({ message: 'Contraseña modificada correctamente.' });                  
+              })
+              .catch((err) => {
+                return res
+                .status(400)
+                .json({ message: 'Error: La contraseña no pudo ser modificada.' });
+              });           
+          });
+        });         
+    })
+    .catch((err) => {            
+      res.status(403).json(err.message);
+    });       
+      
+  })
+}  
+
 module.exports = {
   login,
   createUser,
@@ -333,5 +486,8 @@ module.exports = {
   updatePassword,
   getUsuarioByIdName,
   updateUsuario,
-  getDoctores
+  getDoctores,
+  ResetPassword,
+  ValidPasswordToken,
+  NewPassword
 };

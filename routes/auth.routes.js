@@ -12,4 +12,8 @@ Router.post("/refreshtoken", AuthController.refreshToken);
 Router.put("/", AuthController.updateUsuario);
 Router.put("/pw", AuthController.updatePassword);
 
+Router.post('/req-reset-password', AuthController.ResetPassword);
+Router.post('/new-password', AuthController.NewPassword);
+Router.post('/valid-password-token', AuthController.ValidPasswordToken);
+
 module.exports = Router;
