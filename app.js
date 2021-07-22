@@ -77,10 +77,10 @@ const jwtConfig = {
 app.use('/public/upload', express.static(path.resolve('public/upload')));
 
 // catch 404 and forward to error handler
-// app.use(function (req, res, next) {
-//   res.setHeader('Access-Control-Allow-Origin', '*');
-//   next();
-// });
+app.use(function (req, res, next) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  next();
+});
 
 app.use('/', indexRouter);
 
