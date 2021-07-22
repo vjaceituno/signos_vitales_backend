@@ -87,7 +87,7 @@ app.use('/', indexRouter);
 
 //Excepciones de token JWT
 app.use(jwt(jwtConfig).unless({
-  path: [{ url: "/auth/login" }, { url: "/auth/logout" }, { url: "/auth/create" }, { url: "/auth/vericarsms" },{ url: "/auth/valida" }, { url: "/auth/refreshtoken" }, { url: "/public/upload/" }, { url: "/auth/req-reset-password" }, { url: "/auth/new-password" }, { url: "/auth/valid-password-token" }]
+  path: [{ url: "/auth/login" }, { url: "/auth/logout" }, { url: "/auth/create" }, { url: "/auth/vericarsms" },{ url: "/auth/valida" }, { url: "/auth/refreshtoken" }, { url: "/public/upload/" }, { url: "/auth/req-reset-password" }, { url: "/auth/new-password" }, { url: "/auth/valid-password-token" }, { url: "/imagenes/upload" }]
 }));
 
 app.use('/users', usersRouter);
