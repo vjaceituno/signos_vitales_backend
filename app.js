@@ -76,18 +76,11 @@ const jwtConfig = {
 
 app.use('/public/upload', express.static(path.resolve('public/upload')));
 
-// catch 404 and forward to error handler
-app.use(function (req, res, next) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
-
 app.use('/', indexRouter);
 
 //Excepciones de token JWT
 app.use(jwt(jwtConfig).unless({
-  path: [{ url: "/auth/login" }, { url: "/auth/logout" }, { url: "/auth/create" }, { url: "/auth/vericarsms" },{ url: "/auth/valida" }, { url: "/auth/refreshtoken" }, { url: "/public/upload/" }, { url: "/auth/req-reset-password" }, { url: "/auth/new-password" }, { url: "/auth/valid-password-token" }, { url: "/imagenes/upload" }]
+  path: [{ url: "/auth/login" }, { url: "/auth/logout" }, { url: "/auth/create" }, { url: "/auth/vericarsms" },{ url: "/auth/valida" }, { url: "/auth/refreshtoken" }, { url: "/public/upload/" }, { url: "/auth/req-reset-password" }, { url: "/auth/new-password" }, { url: "/auth/valid-password-token" }]
 }));
 
 app.use('/users', usersRouter);

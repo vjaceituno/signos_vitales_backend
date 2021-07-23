@@ -13,7 +13,7 @@ const { randomNumber } = require('../helpers/libs');
 let nombresImagenes = [];
 // let imagenesTotales = [];
 
-const imageUpload = (req, res, next) => {
+const imageUpload = (req, res) => {
     try{
         if (!req.files) {
             return res.status(400).json({ error: "no image was uploaded" });
@@ -26,14 +26,14 @@ const imageUpload = (req, res, next) => {
         for (let i=0; i<file.length; i++){ 
             console.log('nombre: ', file[i].originalname)
             const ext = path.extname(file[i].originalname).toLowerCase();
-            if (ext === '.png' || ext === '.jpg' || ext === '.jpeg' || ext === '.gif') {
+            if (ext === '.png' || ext === '.jpg' || ext === '.jpeg' || ext === '.gif' || ext === '.jpe' || ext === '.bmp') {
         
                 fs.writeFile(`${UPLOAD_FILES}/${file[i].originalname}`, file[i].buffer, err => {
-                // la funcion es la que maneja lo que sucede despues de termine el evento
-                if (err) {
-                    return console.log(err);
-                }
-                console.log("The file was saved!");
+                    // la funcion es la que maneja lo que sucede despues de termine el evento
+                    if (err) {
+                        return console.log(err);
+                    }
+                    console.log("The file was saved!");
                 });
    
            }
