@@ -31,6 +31,8 @@ const consultaSchema = new mongoose.Schema({
     plan: { type: String },
     color: { type: String },
     comentario: { type: String },
+    precio: { type: Number },
+    signos: { type: mongoose.Types.ObjectId, ref: 'Signos' },
 
     usuario: { type: mongoose.Types.ObjectId, ref: 'Usuario' },
     

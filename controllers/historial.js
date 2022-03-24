@@ -31,6 +31,9 @@ const getHistorial = (req, res) => {
         if (props._id) {
             props._id = mongoose.Types.ObjectId(props._id);
         }
+        if (props.paciente) {
+            props.paciente = mongoose.Types.ObjectId(props.paciente);
+        }
         // if (props.nombre) {
         //     props.nombre = RegExp(props.nombre, "i");
         // }

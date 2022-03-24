@@ -2,6 +2,7 @@ const Router = require('express').Router();
 const ImagenesController = require('../controllers/imagenes');
 
 const multer  = require('multer');
+
 const path = require('path');
 
 const storage = multer.memoryStorage();

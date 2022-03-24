@@ -12,7 +12,7 @@ const signosSchema = new mongoose.Schema({
     spo: { type: Number },
     doctor: { type: String },
     estadoConsulta: { type: String, enum: ['pendiente', 'atendido', 'cancelado'], default: 'pendiente' },
-    consulta: { type: mongoose.Types.ObjectId, ref: 'Consulta' }, 
+    // consulta: { type: mongoose.Types.ObjectId, ref: 'Consulta' }, 
     // pesoideal: { type: Number },
 
     usuario: { type: mongoose.Types.ObjectId, ref: 'Usuario' },

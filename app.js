@@ -39,6 +39,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 // app.use(express.static(path.join(__dirname, 'public')));
 
+// Add a middleware to handle static files in the public directory:
+app.use('/public/upload', express.static(path.resolve('public/upload')));
+
 //mongoose.connect('mongodb://localhost:27017/clinica_gameca', {useNewUrlParser: true,  useUnifiedTopology: true})
 mongoose.connect('mongodb://127.0.0.1:27017/signos_vitales?gssapiServiceName=mongodb', {useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false})
 .then(() => console.log("Connectado a mongodb"))
@@ -73,8 +76,6 @@ const jwtConfig = {
     return undefined;
   }
 };
-
-app.use('/public/upload', express.static(path.resolve('public/upload')));
 
 app.use('/', indexRouter);
 

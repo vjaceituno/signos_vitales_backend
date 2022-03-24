@@ -141,6 +141,7 @@ const logout = (req, res, next) => {
       { 'auth.refreshToken': params.refreshToken }
     ).exec()
     .then(user => {
+      console.log('user', user);
       if(!user) {
         return Promise.resolve(true);
       }

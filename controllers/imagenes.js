@@ -1,4 +1,3 @@
-const Paciente = require("../models/pacientes");
 const Imagenes = require("../models/imagenes");
 const mongoose = require('mongoose');
 
@@ -12,6 +11,8 @@ const { randomNumber } = require('../helpers/libs');
 
 let nombresImagenes = [];
 // let imagenesTotales = [];
+
+const sharp = require('sharp');
 
 const imageUpload = (req, res) => {
     try{
@@ -27,7 +28,7 @@ const imageUpload = (req, res) => {
             console.log('nombre: ', file[i].originalname)
             const ext = path.extname(file[i].originalname).toLowerCase();
             if (ext === '.png' || ext === '.jpg' || ext === '.jpeg' || ext === '.gif' || ext === '.jpe' || ext === '.bmp') {
-        
+                
                 fs.writeFile(`${UPLOAD_FILES}/${file[i].originalname}`, file[i].buffer, err => {
                     // la funcion es la que maneja lo que sucede despues de termine el evento
                     if (err) {
@@ -35,7 +36,6 @@ const imageUpload = (req, res) => {
                     }
                     console.log("The file was saved!");
                 });
-   
            }
 
         }
@@ -70,15 +70,40 @@ const updateImagenesPaciente = (req, res) => {
             const ext = path.extname(nombresImagenes[i].originalname).toLowerCase();
             const targetPath = path.resolve(`./public/upload/${imgUrl}${ext}`);
 
-                console.log("The file was !" + imageTempPath + ' para ' + targetPath);
-                // you wil need the public/temp path or this will throw an error
-                fs.rename(imageTempPath, targetPath,  err => {
+
+            sharp(imageTempPath)
+            .resize(500,500)
+            .jpeg({ quality: 90 })
+            .toBuffer()
+            .then(data => { 
+                console.log('data', data); 
+                // guardar en la carpeta upload
+                 fs.writeFile(targetPath, data, err => {
+                    // la funcion es la que maneja lo que sucede despues de termine el evento
                     if (err) {
                         return console.log(err);
                     }
-                    console.log('renamed complete');
+                    console.log("The file was saved again!");
                 });
-                console.log("The file was moved!");            
+                // eliminar de la carpeta temporal
+                fs.unlink(path.resolve("./public/upload/temp/" + nombresImagenes[i].originalname),  err => {
+                    if (err) {
+                        return console.log(err);
+                    }
+                    console.log('delete' + nombresImagenes[i].originalname );
+                });              
+            })
+            .catch(err => { console.log('err', err); });
+
+                // console.log("The file was !" + imageTempPath + ' para ' + targetPath);
+                // you wil need the public/temp path or this will throw an error
+                // fs.rename(imageTempPath, targetPath,  err => {
+                //     if (err) {
+                //         return console.log(err);
+                //     }
+                //     console.log('renamed complete');
+                // });
+                // console.log("The file was moved!");            
                 
                 const imagen = imgUrl + ext;
                 

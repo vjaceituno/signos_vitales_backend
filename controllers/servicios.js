@@ -1,4 +1,5 @@
 const Servicios = require("../models/servicios");
+const ServiciosConsulta = require("../models/serviciosConsulta")
 const mongoose = require('mongoose');
 
 const createServicios = (req, res) => {
@@ -70,8 +71,64 @@ const updateServicio = (req, res) => {
     }
 }
 
+// ServiciosConsulta 
+const createServiciosConsulta = (req, res) => {
+    try {        
+        console.log(req.body);
+        const props = req.body;
+        const newServiciosConsulta = new ServiciosConsulta(props);
+    
+        //guardar el Servicio en la base de datos
+        newServiciosConsulta.save()
+        .then((servicios) => {
+            res.json(servicios);
+        })
+        .catch((err) => {
+            res.status(403).json(err.message);
+        });
+        
+    } catch (err) {
+        res.status(500).json({ err: err.message });
+    }
+}
+
+const getServiciosConsulta = (req, res) => {
+    try {
+        console.log('req', req.query);
+        const props = req.query;
+        if (props._id) {
+            props._id = mongoose.Types.ObjectId(props._id);
+        }
+        if (props.consulta) {
+            props.consulta = mongoose.Types.ObjectId(props.consulta);
+        }
+        if (props.servicio) {
+            props.servicio = mongoose.Types.ObjectId(props.servicio);
+        }
+        // if (props.descripcion) {
+        //     props.descripcion = RegExp(props.descripcion, "i");
+        // }
+        ServiciosConsulta.find(props).populate('servicio')
+        .exec()
+        .then((servicios) => {
+            console.log('servicios: ', servicios);      
+            res.json(servicios);  
+        })
+        .catch((err) => {
+            res.status(403).json(err.message);
+        });
+
+    } catch (err) {
+        res.status(500).json({ err: err.message });
+    }
+
+}
+
 module.exports = {
     createServicios,
     getServicios,
-    updateServicio
+    updateServicio,
+
+    createServiciosConsulta,
+    getServiciosConsulta
 }

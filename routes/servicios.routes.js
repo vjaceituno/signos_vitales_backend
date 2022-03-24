@@ -5,4 +5,8 @@ Router.get("/", ServiciosController.getServicios);
 Router.post("/create", ServiciosController.createServicios);
 Router.put("/", ServiciosController.updateServicio);
 
+// Servicios Consulta
+Router.get("/serviconsulta", ServiciosController.getServiciosConsulta)
+Router.post("/serviconsulta", ServiciosController.createServiciosConsulta)
+
 module.exports = Router;
