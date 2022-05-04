@@ -7,6 +7,7 @@ const serviosConsultaSchema = new mongoose.Schema({
     consulta: { type: mongoose.Types.ObjectId, ref: 'Consulta' },
     usuario: { type: mongoose.Types.ObjectId, ref: 'Usuario' },   
     observacion: { type: String },
+    precio: { type: Number },
         
 }, { timestamps: true });
 

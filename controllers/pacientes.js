@@ -15,50 +15,25 @@ const mongoose = require('mongoose');
 
 const createPaciente = (req, res) => {
     try {        
-        // console.log(req.body);
+        console.log(req.body);
         const props = req.body;
-
-        // buscar id del paciente
-        let existe = '';
-        Paciente.findOne({ identidad: props.identidad })
-        .exec()
-        .then((paciente) => {
-            existe = paciente.identidad;
-            console.log('existe', existe);
-
-            if (existe === ''){
-                const newPaciente = new Paciente(props);
-                newPaciente.fullName = `${newPaciente.firstName} ${newPaciente.lastName}`;
-    
-                // guardar el paciente en la base de datos
-                newPaciente.save()
-                .then((paciente) => {
-                    console.log('pac', paciente);
-                    res.json(paciente);
-                })
-                .catch((err) => {
-                    res.status(403).json(err.message);
-                });
-            }
-            else {
-                res.status(410).json({ message: "error.PacienteExiste" });
-            }
-        })
-        .catch((err) => {
-            res.status(404).json(err.message);
-        });
-
-        // const newPaciente = new Paciente(props);
-        // newPaciente.fullName = `${newPaciente.firstName} ${newPaciente.lastName}`;
+        const newPaciente = new Paciente(props);
+        newPaciente.fullName = `${newPaciente.firstName} ${newPaciente.lastName}`;
 
         //guardar el paciente en la base de datos
-        // newPaciente.save()
-        // .then((paciente) => {
-        //     res.json(paciente);
-        // })
-        // .catch((err) => {
-        //     res.status(403).json(err.message);
-        // });
+        newPaciente.save()
+        .then((paciente) => {
+            res.json(paciente);
+        })
+        .catch((err) => {            
+            if(err.code === 11000) {
+                //si el paciente ya existe
+                res.status(410).json({ error: err.toString(), message: "error.PacienteExiste" });
+            }
+            else {
+                res.status(403).json(err.message);
+            }
+        });
         
     } catch (err) {
         res.status(500).json({ err: err.message });

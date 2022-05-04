@@ -115,6 +115,7 @@ const createUser = (req, res, next) => {
         .add(5, "days")
         .toDate()
     };
+
     user
       .save()
       .then(savedUser => {
@@ -125,7 +126,17 @@ const createUser = (req, res, next) => {
 
         res.json(user_);
       })
-      .catch(err => res.status(403).json({ err: err.toString() }));
+      // .catch(err => res.status(403).json({ err: err.toString() }));
+      .catch(err => {
+        if (err.code === 11000 ) {
+          //si el usuario ya existe       
+          res.status(410).json({ error: err.toString(), message: "error.UserExists" });
+        }
+        else {
+          res.status(403).json({ error: err.toString() });
+        }      
+      });          
+      
   } catch (err) {
     return res.status(500).json({ error: true, message: err.toString() });
   }

@@ -2,6 +2,7 @@ const Router = require('express').Router();
 const ConsultaController = require('../controllers/consulta');
 
 Router.get("/", ConsultaController.getConsulta); 
+Router.get("/fecha", ConsultaController.getConsultaFecha);
 Router.get("/fechas", ConsultaController.getConsultaFechas);
 Router.get("/empresa", ConsultaController.getPacienteConsultaEmpresa);
 Router.post("/create", ConsultaController.createConsulta);

@@ -1,6 +1,9 @@
 
 
 const Historial = require("../models/historial.js");
+const Pacientes = require("../models/pacientes");
+const Usuarios = require("../models/usuarios");
+
 const mongoose = require('mongoose');
 
 const createHistorial = (req, res) => {
@@ -97,7 +100,7 @@ const getPacienteConsultaEmpresa = (req, res) => {
 
 }
 
-const getHistorialFechas = (req, res) => {
+const getHistorialFecha = (req, res) => {
     try {
         console.log('req', req.query);
         const props = req.query;
@@ -130,10 +133,52 @@ const getHistorialFechas = (req, res) => {
 
 }
 
+const getHistorialFechas = async (req, res) => {
+    try {
+        console.log('req', req.query);
+        const props = req.query;
+        if (props._id) {
+            props._id = mongoose.Types.ObjectId(props._id);
+        }
+        if (props.paciente) {
+            props.paciente = mongoose.Types.ObjectId(props.paciente);
+        }
+        
+        const historialPac = await Historial.aggregate( [
+            {
+                $project: {
+                    paciente: 1,                    
+                    usuario: 1,                                                           
+                    createdAt: { 
+                        $dateToString: {
+                            format: "%Y-%m-%d", date: {$add: ["$createdAt", -6 * 3600000]}
+                        }                            
+                    }
+                }
+            }
+            ]
+        );
+        
+        await Pacientes.populate(historialPac, {path: "paciente"} );
+        await Usuarios.populate(historialPac, {path: "usuario"} );
+                
+        let historial = historialPac.filter( n =>
+            n.createdAt >= props.fechaInicial && n.createdAt <= props.fechaFinal                
+        )
+   
+        res.json(historial); 
+
+    } catch (err) {
+        res.status(500).json({ err: err.message });
+    }
+
+}
+
 module.exports = {
     createHistorial,
     getHistorial,
     updateHistorial,
     getPacienteConsultaEmpresa,
+    getHistorialFecha,
     getHistorialFechas
 }

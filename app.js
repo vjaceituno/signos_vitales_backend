@@ -14,6 +14,7 @@ const jwt = require('express-jwt');
 const Tokens = require("./models/tokens");
 const moment = require('moment-timezone');
 
+// moment().tz("America/Tegucigalpa").format();
 
 // const config = require("./config")
 // const client = require ("twilio")(config.accountID, config.authToken)
@@ -32,8 +33,8 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-app.use(logger('dev'));
 app.use(cors());
+app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -44,6 +45,7 @@ app.use('/public/upload', express.static(path.resolve('public/upload')));
 
 //mongoose.connect('mongodb://localhost:27017/clinica_gameca', {useNewUrlParser: true,  useUnifiedTopology: true})
 mongoose.connect('mongodb://127.0.0.1:27017/signos_vitales?gssapiServiceName=mongodb', {useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false})
+// mongoose.connect('mongodb://127.0.0.1:27017/signos_vitales?', {useNewUrlParser: true, useUnifiedTopology: true})
 .then(() => console.log("Connectado a mongodb"))
 .catch((err) => {
   console.log(err);

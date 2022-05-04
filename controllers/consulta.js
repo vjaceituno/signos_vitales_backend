@@ -1,4 +1,7 @@
 const Consulta = require("../models/consulta.js");
+const Pacientes = require("../models/pacientes");
+const Usuarios = require("../models/usuarios");
+
 const mongoose = require('mongoose');
 
 const createConsulta = (req, res) => {
@@ -76,7 +79,7 @@ const getPacienteConsultaEmpresa = (req, res) => {
 
 }
 
-const getConsultaFechas = (req, res) => {
+const getConsultaFecha = (req, res) => {
     try {
         console.log('req', req.query);
         const props = req.query;
@@ -108,9 +111,50 @@ const getConsultaFechas = (req, res) => {
 
 }
 
+const getConsultaFechas = async (req, res) => {
+    try {
+        console.log('req', req.query);
+        const props = req.query;
+        if (props._id) {
+            props._id = mongoose.Types.ObjectId(props._id);
+        }
+        if (props.paciente) {
+            props.paciente = mongoose.Types.ObjectId(props.paciente);
+        }
+        
+        const consultaPac = await Consulta.aggregate( [
+            {
+                $project: {
+                    paciente: 1,                    
+                    usuario: 1,                                                           
+                    createdAt: { 
+                        $dateToString: {
+                            format: "%Y-%m-%d", date: {$add: ["$createdAt", -6 * 3600000]}
+                        }                            
+                    }
+                }
+            }
+            ]
+        );
+        
+        await Pacientes.populate(consultaPac, {path: "paciente"} );
+        await Usuarios.populate(consultaPac, {path: "usuario"} );
+                
+        let consulta = consultaPac.filter( n =>
+            n.createdAt >= props.fechaInicial && n.createdAt <= props.fechaFinal                
+        )
+   
+        res.json(consulta); 
+    } catch (err) {
+        res.status(500).json({ err: err.message });
+    }
+
+}
+
 module.exports = {
     createConsulta,
     getConsulta,
     getPacienteConsultaEmpresa,
+    getConsultaFecha,
     getConsultaFechas
 }

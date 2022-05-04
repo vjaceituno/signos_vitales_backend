@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const pacienteSchema = new mongoose.Schema({
     firstName: { type: String, required: [true, 'Nombre es requerido'] },
     lastName: { type: String , required: [true, 'Apellido es requerido'] },
-    identidad: { type: String },
+    identidad: { type: String, unique: true },
     email: { type: String },
     phone: { type: String },
     address: { type: String },

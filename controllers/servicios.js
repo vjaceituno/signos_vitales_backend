@@ -1,5 +1,7 @@
 const Servicios = require("../models/servicios");
 const ServiciosConsulta = require("../models/serviciosConsulta")
+const Pacientes = require("../models/pacientes");
+const Usuarios = require("../models/usuarios");
 const mongoose = require('mongoose');
 
 const createServicios = (req, res) => {
@@ -124,11 +126,55 @@ const getServiciosConsulta = (req, res) => {
 
 }
 
+const getServiciosFechas = async (req, res) => {
+    try {        
+        const props = req.query;
+        if (props._id) {
+            props._id = mongoose.Types.ObjectId(props._id);
+        }
+        if (props.paciente) {
+            props.paciente = mongoose.Types.ObjectId(props.paciente);
+        }        
+        
+        const serviConsulta = await ServiciosConsulta.aggregate( [
+            {
+                $project: {
+                    paciente: 1,
+                    servicio: 1,
+                    usuario: 1,
+                    precio: 1,                                         
+                    createdAt: { 
+                        $dateToString: {
+                            format: "%Y-%m-%d", date: {$add: ["$createdAt", -6 * 3600000]}
+                        }                            
+                    }
+                }
+            }
+            ]
+        );
+
+        await Servicios.populate(serviConsulta, {path: "servicio"} );
+        await Pacientes.populate(serviConsulta, {path: "paciente"} );
+        await Usuarios.populate(serviConsulta, {path: "usuario"} );
+                
+        let servicio = serviConsulta.filter( n =>
+            n.createdAt >= props.fechaInicial && n.createdAt <= props.fechaFinal                
+        )
+
+        res.json(servicio);        
+        
+    } catch (err) {        
+        res.status(500).json({ err: err.message });
+    }
+
+}
+
 module.exports = {
     createServicios,
     getServicios,
     updateServicio,
 
     createServiciosConsulta,
-    getServiciosConsulta
+    getServiciosConsulta,
+    getServiciosFechas
 }
